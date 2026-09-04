@@ -17,6 +17,19 @@
     el.textContent = new Date().getFullYear();
   });
 
+  /* ------------------------------------------ Choix de langue mémorisé */
+  // Enregistré au clic seulement, et pour la durée de la session. Il n'y a
+  // aucune détection de la langue du navigateur dans ce site : la racine est
+  // anglaise pour tout le monde, et seul un clic explicite sur FR fait
+  // basculer les pages consultées ensuite pendant la visite.
+  $$('[data-lang]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      try {
+        sessionStorage.setItem('lvno-lang', el.getAttribute('data-lang'));
+      } catch (e) { /* stockage indisponible : sans effet */ }
+    });
+  });
+
   /* -------------------------------------------- En-tête au défilement */
   var header = $('[data-header]');
   if (header) {

@@ -11,10 +11,10 @@ Hébergement prévu : GitHub Pages (branche `main`, racine du dépôt).
 ## Structure
 
 ```
-index.html                 page française (défaut)
-en/index.html              page anglaise
-mentions-legales.html      mentions légales FR
-en/legal-notice.html       legal notice EN
+index.html                 page anglaise (défaut, à la racine)
+fr/index.html              page française
+legal-notice.html          legal notice EN
+fr/mentions-legales.html   mentions légales FR
 404.html                   page d'erreur, bilingue
 CNAME                      domaine personnalisé GitHub Pages (lvno.fr)
 .nojekyll                  désactive le traitement Jekyll
@@ -35,34 +35,37 @@ versions** : c'est la signature de marque, elle ne se traduit pas. Dans la page
 française, le `<h1>` porte donc un `lang="en"` pour que les lecteurs d'écran
 l'énoncent correctement.
 
-## Bilinguisme
+## Bilinguisme — anglais par défaut
 
-Deux pages statiques, français par défaut à la racine et anglais sous `/en/`,
-reliées par un sélecteur FR / EN dans l'en-tête et par des `hreflang`
-réciproques (plus un `x-default` sur le français).
+Deux pages statiques : **l'anglais à la racine**, le français sous `/fr/`.
+`hreflang` réciproques, et `x-default` pointant sur l'anglais.
 
-`site.js` ne contient **aucune chaîne de caractères visible** : tous les libellés
-d'interface qu'il manipule — messages du formulaire, libellé du bouton pendant
-l'envoi, `aria-label` du menu — sont lus dans le balisage via des attributs
-`data-msg-*`, `data-label-open` et `data-label-close`. Le script est donc partagé
-sans duplication entre les deux langues.
+**Il n'y a aucune détection de la langue du navigateur**, nulle part. La racine
+sert l'anglais à tout le monde, y compris à un visiteur dont le navigateur est
+en français. C'est un choix explicite, pas un oubli : ne pas réintroduire de
+lecture de `navigator.language` ni de `Accept-Language`.
+
+Le choix du visiteur est mémorisé pour la durée de sa session :
+
+- un clic sur le sélecteur enregistre `sessionStorage['lvno-lang']`
+  (`assets/js/site.js`, via les attributs `data-lang`) ;
+- les pages **anglaises** portent un court script en ligne dans le `<head>`
+  qui redirige vers l'équivalent français si — et seulement si — cette valeur
+  vaut `fr`. Les pages françaises n'ont aucun script de ce genre, donc aucune
+  redirection ne ramène jamais vers l'anglais.
+
+Comme l'enregistrement n'a lieu qu'au clic, un robot d'indexation ne stocke
+rien et voit toujours l'anglais à la racine.
+
+`site.js` ne contient **aucune chaîne de caractères visible** : tous les
+libellés d'interface qu'il manipule — messages du formulaire, libellé du bouton
+pendant l'envoi, `aria-label` du menu — sont lus dans le balisage via des
+attributs `data-msg-*`, `data-label-open` et `data-label-close`. Le script est
+donc partagé sans duplication entre les deux langues.
 
 Les chemins des ressources sont **absolus** (`/assets/…`) pour rester valides
-depuis `/en/`. Conséquence : ouvrir un fichier directement en `file://` n'affiche
-aucun style — il faut passer par un serveur local (voir plus bas).
-
-## Polices
-
-Space Grotesk et Inter Tight sont **auto-hébergées** dans `assets/fonts/`
-(licence OFL 1.1, auto-hébergement autorisé). Aucune requête vers Google : les
-`@font-face` sont déclarés en tête de `assets/css/base.css`, et les deux fichiers
-`latin` sont préchargés depuis le `<head>` de chaque page.
-
-Google sert ces deux familles sous forme de **polices variables** : un seul
-fichier couvre les graisses 300 à 500, il n'y a donc qu'un fichier par famille et
-par sous-ensemble. Les `unicode-range` sont conservés, si bien que `latin-ext`
-n'est jamais téléchargé avec le contenu actuel — 65,7 Ko de polices par page,
-171,9 Ko dans le dépôt.
+depuis `/fr/`. Conséquence : ouvrir un fichier directement en `file://`
+n'affiche aucun style — il faut passer par un serveur local.
 
 ## Charte
 
