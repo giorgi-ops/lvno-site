@@ -30,6 +30,11 @@ assets/img/giorgi.jpg      portrait de la section À propos
 
 Sections de la page : hero → repères chiffrés → services → méthode → à propos → contact.
 
+La baseline « Your high-level executive support » reste **en anglais dans les deux
+versions** : c'est la signature de marque, elle ne se traduit pas. Dans la page
+française, le `<h1>` porte donc un `lang="en"` pour que les lecteurs d'écran
+l'énoncent correctement.
+
 ## Bilinguisme
 
 Deux pages statiques, français par défaut à la racine et anglais sous `/en/`,

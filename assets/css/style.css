@@ -174,7 +174,7 @@ main,.hdr,.ftr{ position:relative; z-index:2; }
 /* ---------------------------------------------- Repères sous le hero */
 .stats-band{ position:relative; z-index:2; padding:0 0 clamp(16px,3vw,34px); }
 .stats{
-  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px;
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px;
   background:var(--glass-line);
   border:1px solid var(--glass-line); border-radius:20px; overflow:hidden;
 }
@@ -191,6 +191,7 @@ main,.hdr,.ftr{ position:relative; z-index:2; }
 }
 /* Cible le libellé seul : le <span> du compteur vit dans <strong>. */
 .stat-lbl{ font-size:.85rem; line-height:1.45; color:rgba(255,255,255,.55); }
+@media (max-width:760px){ .stats{ grid-template-columns:1fr; } }
 
 /* ------------------------------------------------------------ Sections */
 .sec{ padding:clamp(80px,10vw,140px) 0; }
@@ -365,7 +366,6 @@ main,.hdr,.ftr{ position:relative; z-index:2; }
   .contact-grid{ grid-template-columns:1fr; }
   .about-grid{ grid-template-columns:1fr; }
   .portrait{ max-width:320px; }
-  .stats{ grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 @media (max-width:760px){ .bento{ grid-template-columns:1fr; } }
 @media (max-width:900px){
