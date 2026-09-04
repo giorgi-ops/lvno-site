@@ -175,11 +175,10 @@
     return first;
   };
 
-  var readError = function (data) {
-    if (data && data.errors && data.errors.length) {
-      return data.errors.map(function (x) { return x.message; }).join(' ');
-    }
-    return '';
+  var fail = function (data) {
+    var err = new Error('form submission failed');
+    err.fieldErrors = (data && data.errors) || [];
+    return err;
   };
 
   form.addEventListener('submit', function (e) {
@@ -211,8 +210,8 @@
       .then(function (res) {
         if (res.ok) { return res.json().catch(function () { return {}; }); }
         return res.json().then(
-          function (data) { throw new Error(readError(data)); },
-          function () { throw new Error(''); }
+          function (data) { throw fail(data); },
+          function () { throw fail(null); }
         );
       })
       .then(function () {
@@ -220,7 +219,22 @@
         say(msg('ok'), 'ok');
       })
       .catch(function (err) {
-        say(err.message || msg('error'), 'error');
+        var list = (err && err.fieldErrors) || [];
+
+        // Formspree renvoie ses libellés de validation en anglais quel que soit
+        // _language : on affiche donc notre message localisé et on garde le
+        // détail technique pour la console.
+        list.forEach(function (e) {
+          var el = e.field && form.elements[e.field];
+          if (el && el.setAttribute) { el.setAttribute('aria-invalid', 'true'); }
+        });
+        if (list.length && window.console) {
+          console.warn('Formspree : ' + list.map(function (e) {
+            return (e.field || '?') + ' — ' + e.message;
+          }).join(' | '));
+        }
+
+        say(msg('error'), 'error');
         if (submit) {
           submit.disabled = false;
           if (label) { label.textContent = labelText; }

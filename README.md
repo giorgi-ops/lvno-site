@@ -84,22 +84,39 @@ Deux contraintes de contraste, mesurées, structurent la charte :
 contexte, sans dupliquer le fichier. Une garde `@supports` masque l'élément si
 le navigateur ne gère pas les masques, plutôt que d'afficher un aplat.
 
+## Formulaire de contact
+
+Le site est statique : GitHub Pages ne peut pas envoyer d'e-mail. Les deux
+formulaires postent donc vers **Formspree** (`https://formspree.io/f/xbgjkgwd`),
+en AJAX depuis `assets/js/site.js`.
+
+L'envoi est écrit à la main plutôt que confié à `@formspree/ajax` : la
+bibliothèque se charge depuis un CDN externe, ce qui rétablirait la requête
+tierce que l'auto-hébergement des polices vient de supprimer, et elle ne saurait
+pas lire nos libellés `data-msg-*`. Le code maison couvre déjà l'état d'envoi, la
+désactivation du bouton, `aria-invalid` par champ et l'état de succès.
+
+Champs spéciaux envoyés :
+
+| Champ | Rôle |
+|---|---|
+| `email` | détecté par Formspree comme adresse de réponse |
+| `_subject` | objet de l'e-mail reçu, distinct entre FR et EN |
+| `_language` | langue de la page de remerciement servie par Formspree aux visiteurs sans JavaScript |
+| `_gotcha` | leurre anti-spam, masqué en CSS |
+
+**Formspree renvoie ses erreurs de validation en anglais**, quel que soit
+`_language`. Le script affiche donc toujours son propre message localisé
+(`data-msg-error`) et réserve le détail technique du serveur à la console, tout
+en marquant `aria-invalid` sur les champs que le serveur a refusés.
+
+Réponse observée en cas de succès : `{"next":"…","ok":true}` en HTTP 200.
+En cas d'échec : HTTP 422 et `{"error":"…","errors":[{"code","field","message"}]}`.
+
 ## À renseigner avant mise en ligne
 
-1. **Formspree** — remplacer `REMPLACER_PAR_VOTRE_ID` dans l'attribut `action`
-   du `<form>`, **dans les deux pages** (`index.html` et `en/index.html`) :
-
-   ```html
-   <form ... action="https://formspree.io/f/xxxxxxxx" method="POST">
-   ```
-
-   Tant que ce n'est pas fait, le formulaire affiche un message d'erreur
-   explicite plutôt que de perdre silencieusement les messages.
-
-2. **Mentions légales** — l'adresse et le SIRET sont des marqueurs
-   `[à compléter]`, signalés visuellement en orange sur les deux pages légales.
-
-3. **Adresse e-mail** — `contact@lvno.fr` est utilisée partout, à confirmer.
+Rien pour le contenu. Il reste à créer le dépôt, pousser et activer GitHub Pages
+avec le domaine `lvno.fr` (voir `CNAME`).
 
 ## Développement local
 
