@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page introuvable — LVNO</title>
+<meta name="theme-color" content="#0A1F1C">
+<link rel="icon" href="/assets/img/favicon.png" sizes="180x180">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/base.css">
+<style>
+  body{ background:var(--ink); color:var(--on-dark);
+        font-family:"Inter Tight",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif; }
+  .nf{ min-height:100svh; display:grid; place-items:center; text-align:center;
+       background:radial-gradient(60vw 46vw at 50% 0%, rgba(98,177,161,.22), transparent 64%); }
+  .nf .mark{ width:64px; margin:0 auto 30px; color:var(--brand); }
+  .tag{ font-size:.74rem; font-weight:500; letter-spacing:.22em; text-transform:uppercase;
+        color:var(--brand); margin:0 0 14px; }
+  h1{ font-size:clamp(1.9rem,5vw,3rem); font-weight:300; letter-spacing:-.03em;
+      color:#fff; margin:0 0 16px; }
+  p.l{ color:rgba(255,255,255,.62); margin:0 0 32px; }
+  .go{ display:inline-flex; padding:14px 28px; border-radius:999px;
+       background:var(--brand); color:var(--on-brand); font-weight:500; font-size:.88rem;
+       transition:background .35s var(--ease), transform .35s var(--ease); }
+  .go:hover{ background:#78C0B1; transform:translateY(-2px); }
+</style>
+</head>
+<body>
+<main class="nf">
+  <div class="container">
+    <span class="mark" aria-hidden="true"></span>
+    <p class="tag">Erreur 404</p>
+    <h1>Cette page n’existe pas.</h1>
+    <p class="l">Le lien est peut-être obsolète. Revenez à l’accueil pour retrouver l’essentiel.</p>
+    <a class="go" href="/">Retour à l’accueil</a>
+  </div>
+</main>
+</body>
+</html>

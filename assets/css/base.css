@@ -1,0 +1,115 @@
+/* ==========================================================================
+   LVNO — socle commun aux trois directions
+   Charte dérivée du logo : #62B1A1 (hsl 168 34% 54%)
+   ========================================================================== */
+
+:root{
+  /* --- Marque, extraite du logo --------------------------------------- */
+  --brand:      #62B1A1;   /* couleur exacte du logo */
+  --brand-600:  #4E9C8C;
+  --brand-700:  #3A8172;
+  --brand-800:  #2A6156;   /* seuil AA pour du texte sur fond clair */
+  --brand-900:  #16382F;
+
+  /* --- Encres et papiers (neutres refroidis vers la teinte 168) ------- */
+  --ink:        #0A1F1C;
+  --ink-2:      #102B26;
+  --ink-3:      #1A3B34;
+  --text:       #16241F;
+  --muted:      #5F6F6A;
+  --paper:      #F7F9F8;
+  --tint-50:    #F2F8F6;
+  --tint-100:   #E3F0EC;
+  --tint-200:   #C7E1DA;
+  --line:       #DDE6E3;
+
+  /* --- Rôles : le contraste impose le sens de lecture ----------------- */
+  --on-brand:   var(--ink);          /* le blanc sur le vert logo = 2,5:1 */
+  --accent-txt: var(--brand-800);    /* vert lisible sur fond clair */
+  --on-dark:    rgba(255,255,255,.74);
+
+  --wrap: 1200px;
+  --gutter: clamp(20px, 5vw, 52px);
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --ease-out: cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html{ -webkit-text-size-adjust:100%; }
+@media (prefers-reduced-motion:no-preference){ html{ scroll-behavior:smooth; } }
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+  font-synthesis-weight:none;
+}
+
+img,svg{ max-width:100%; display:block; }
+a{ color:inherit; text-decoration:none; }
+h1,h2,h3,h4{ margin:0; font-weight:inherit; }
+p{ margin:0 0 1.1em; }
+ul,ol{ margin:0; padding:0; list-style:none; }
+button{ font:inherit; color:inherit; }
+
+::selection{ background:var(--brand); color:var(--ink); }
+
+.container{
+  width:100%; max-width:var(--wrap);
+  margin-inline:auto; padding-inline:var(--gutter);
+}
+
+.skip-link{ position:absolute; left:-9999px; top:0; z-index:200;
+  background:var(--ink); color:#fff; padding:12px 18px; }
+.skip-link:focus{ left:12px; top:12px; }
+
+:focus-visible{ outline:2px solid var(--brand); outline-offset:3px; border-radius:2px; }
+
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+
+/* ============ Le sigle, recoloré par masque ==============================
+   Le PNG du logo sert de masque alpha : la forme prend donc `currentColor`
+   et suit la couleur du contexte (vert sur clair, blanc sur sombre).
+   ======================================================================== */
+
+.mark{ display:none; aspect-ratio:781/900; }
+
+/* Sans prise en charge des masques, mieux vaut ne rien afficher qu'un aplat. */
+@supports ((-webkit-mask-image:url("../img/logo-mask.png")) or (mask-image:url("../img/logo-mask.png"))){
+  .mark{
+    display:block;
+    background-color:currentColor;
+    -webkit-mask:url("../img/logo-mask.png") center/contain no-repeat;
+            mask:url("../img/logo-mask.png") center/contain no-repeat;
+  }
+}
+.mark-sm{ width:22px; }
+.mark-md{ width:34px; }
+
+/* ============ Apparition au défilement ================================= */
+
+.reveal{
+  opacity:0; transform:translateY(20px);
+  transition:opacity .85s var(--ease-out), transform .85s var(--ease-out);
+  transition-delay:calc(var(--d,0) * 90ms);
+}
+.reveal.is-visible{ opacity:1; transform:none; }
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important; animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+  .reveal{ opacity:1; transform:none; }
+}
+
+/* ============ Champ leurre anti-spam =================================== */
+.gotcha{ position:absolute; left:-9999px; width:1px; height:1px; opacity:0; }
+
