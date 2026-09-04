@@ -37,6 +37,25 @@
     window.addEventListener('resize', onProgress);
   }
 
+  /* --------------------------------------------------- Bouton remontée */
+  var toTop = $('[data-to-top]');
+  if (toTop) {
+    var onToTop = function () {
+      toTop.classList.toggle('is-shown', window.scrollY > window.innerHeight * 0.8);
+    };
+    onToTop();
+    window.addEventListener('scroll', onToTop, { passive: true });
+    window.addEventListener('resize', onToTop);
+
+    toTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+      // Ramener le focus en tête de document, sinon la tabulation reprendrait
+      // en bas de page après la remontée.
+      var brand = document.querySelector('.wordmark');
+      if (brand) { brand.focus({ preventScroll: true }); }
+    });
+  }
+
   /* ------------------------------------------------------- Menu mobile */
   var toggle = $('[data-nav-toggle]');
   var nav = $('[data-nav]');

@@ -307,6 +307,31 @@ main,.hdr,.ftr{ position:relative; z-index:2; }
 .form-note a:hover{ color:var(--brand); }
 .form-sent .f,.form-sent .f2,.form-sent .consent,.form-sent [data-submit]{ display:none; }
 
+/* ------------------------------------------ Bouton de remontée */
+.to-top{
+  position:fixed; z-index:60;
+  right:clamp(16px,3vw,28px); bottom:clamp(16px,3vw,28px);
+  width:48px; height:48px; display:grid; place-items:center;
+  border-radius:50%; cursor:pointer;
+  background:rgba(10,31,28,.66); border:1px solid var(--glass-line); color:#fff;
+  backdrop-filter:blur(14px) saturate(150%); -webkit-backdrop-filter:blur(14px) saturate(150%);
+  box-shadow:0 18px 40px -26px rgba(0,0,0,.9);
+  /* Masqué mais présent : pointer-events le retire du survol et du clic. */
+  opacity:0; transform:translateY(14px) scale(.92); pointer-events:none;
+  transition:opacity .45s var(--ease), transform .45s var(--ease),
+             background .35s var(--ease), border-color .35s var(--ease), color .35s var(--ease);
+}
+.to-top.is-shown{ opacity:1; transform:none; pointer-events:auto; }
+.to-top svg{ width:18px; height:18px; }
+.to-top:hover{
+  background:var(--brand); border-color:var(--brand); color:var(--on-brand);
+  transform:translateY(-3px);
+}
+@media (max-width:680px){
+  .to-top{ width:44px; height:44px; }
+  .to-top svg{ width:16px; height:16px; }
+}
+
 /* ------------------------------------------------- Pages légales */
 .legal{ padding:clamp(118px,13vw,168px) 0 clamp(56px,7vw,96px); }
 .legal-in{ max-width:760px; }
