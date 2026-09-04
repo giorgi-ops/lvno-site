@@ -51,6 +51,19 @@ Les chemins des ressources sont **absolus** (`/assets/…`) pour rester valides
 depuis `/en/`. Conséquence : ouvrir un fichier directement en `file://` n'affiche
 aucun style — il faut passer par un serveur local (voir plus bas).
 
+## Polices
+
+Space Grotesk et Inter Tight sont **auto-hébergées** dans `assets/fonts/`
+(licence OFL 1.1, auto-hébergement autorisé). Aucune requête vers Google : les
+`@font-face` sont déclarés en tête de `assets/css/base.css`, et les deux fichiers
+`latin` sont préchargés depuis le `<head>` de chaque page.
+
+Google sert ces deux familles sous forme de **polices variables** : un seul
+fichier couvre les graisses 300 à 500, il n'y a donc qu'un fichier par famille et
+par sous-ensemble. Les `unicode-range` sont conservés, si bien que `latin-ext`
+n'est jamais téléchargé avec le contenu actuel — 65,7 Ko de polices par page,
+171,9 Ko dans le dépôt.
+
 ## Charte
 
 La palette est **dérivée du logo** (`assets/img/logo.png`), dont la couleur exacte
