@@ -8,17 +8,43 @@ Cible : https://lvno.fr
 HTML, CSS et JavaScript natif. Aucun framework, aucune étape de build.
 Hébergement prévu : GitHub Pages (branche `main`, racine du dépôt).
 
-## État : trois directions au choix
+## Structure
 
-`index.html` est pour l'instant une **page de comparaison interne** (`noindex`) qui
-présente les trois partis pris graphiques. La direction retenue deviendra `index.html`
-et les deux autres seront supprimées avant la mise en ligne.
+```
+index.html                 page française (défaut)
+en/index.html              page anglaise
+mentions-legales.html      mentions légales FR
+en/legal-notice.html       legal notice EN
+404.html                   page d'erreur, bilingue
+CNAME                      domaine personnalisé GitHub Pages (lvno.fr)
+.nojekyll                  désactive le traitement Jekyll
+robots.txt sitemap.xml     indexation, avec alternates hreflang
+assets/css/base.css        jetons de charte, reset, sigle, animations
+assets/css/style.css       habillage du site (thème sombre)
+assets/js/site.js          menu, apparitions, compteurs, envoi du formulaire
+assets/img/logo.png        logo recadré (512 px)
+assets/img/logo-mask.png   même forme en masque alpha
+assets/img/favicon.png     favicon 180 px, logo vert sur fond encre
+assets/img/giorgi.jpg      portrait de la section À propos
+```
 
-| Fichier | Direction | Parti pris |
-|---|---|---|
-| `option-a.html` | Éditorial | Papier clair, titrage serif surdimensionné, filets fins, services en lignes de magazine |
-| `option-b.html` | Nuit / verre | Fond encre, halos dégradés, cartes en verre dépoli, halo au curseur |
-| `option-c.html` | Bento affirmé | Grotesque gras, aplats de couleur, grille bento asymétrique, compteurs animés |
+Sections de la page : hero → repères chiffrés → services → méthode → à propos → contact.
+
+## Bilinguisme
+
+Deux pages statiques, français par défaut à la racine et anglais sous `/en/`,
+reliées par un sélecteur FR / EN dans l'en-tête et par des `hreflang`
+réciproques (plus un `x-default` sur le français).
+
+`site.js` ne contient **aucune chaîne de caractères visible** : tous les libellés
+d'interface qu'il manipule — messages du formulaire, libellé du bouton pendant
+l'envoi, `aria-label` du menu — sont lus dans le balisage via des attributs
+`data-msg-*`, `data-label-open` et `data-label-close`. Le script est donc partagé
+sans duplication entre les deux langues.
+
+Les chemins des ressources sont **absolus** (`/assets/…`) pour rester valides
+depuis `/en/`. Conséquence : ouvrir un fichier directement en `file://` n'affiche
+aucun style — il faut passer par un serveur local (voir plus bas).
 
 ## Charte
 
@@ -33,36 +59,17 @@ Deux contraintes de contraste, mesurées, structurent la charte :
 - pour du **petit texte vert sur fond clair**, il faut descendre à `#2A6156`
   (`--accent-txt`, 6,75:1) ; `#3A8172` plafonne à 4,35:1.
 
-## Structure
-
-```
-index.html              page de comparaison (temporaire)
-option-a|b|c.html       les trois directions
-404.html                page d'erreur
-CNAME                   domaine personnalisé GitHub Pages (lvno.fr)
-.nojekyll               désactive le traitement Jekyll
-robots.txt sitemap.xml  indexation
-assets/css/base.css     jetons de charte, reset, sigle, animations — commun aux trois
-assets/css/a|b|c.css    une feuille par direction
-assets/js/site.js       menu, apparitions, compteurs, envoi du formulaire — commun
-assets/img/logo.png     logo recadré (512 px)
-assets/img/logo-mask.png  même forme en masque alpha
-assets/img/favicon.png  favicon 180 px, logo vert sur fond encre
-```
-
 ### Le sigle
 
 `assets/img/logo-mask.png` est utilisé comme **masque alpha** (`.mark` dans
 `base.css`) : la forme prend `currentColor` et suit donc la couleur de son
-contexte — vert sur fond clair, blanc ou encre ailleurs, sans dupliquer le
-fichier. Une garde `@supports` masque l'élément si le navigateur ne gère pas
-les masques, plutôt que d'afficher un aplat.
+contexte, sans dupliquer le fichier. Une garde `@supports` masque l'élément si
+le navigateur ne gère pas les masques, plutôt que d'afficher un aplat.
 
-## Configuration à faire
+## À renseigner avant mise en ligne
 
-1. **Formspree** — remplacer `REMPLACER_PAR_VOTRE_ID` par l'identifiant du
-   formulaire dans l'attribut `action` du `<form>`, dans le fichier de la
-   direction retenue :
+1. **Formspree** — remplacer `REMPLACER_PAR_VOTRE_ID` dans l'attribut `action`
+   du `<form>`, **dans les deux pages** (`index.html` et `en/index.html`) :
 
    ```html
    <form ... action="https://formspree.io/f/xxxxxxxx" method="POST">
@@ -71,12 +78,10 @@ les masques, plutôt que d'afficher un aplat.
    Tant que ce n'est pas fait, le formulaire affiche un message d'erreur
    explicite plutôt que de perdre silencieusement les messages.
 
-2. **Adresse e-mail** — `contact@lvno.fr` apparaît dans les trois pages et dans
-   `assets/js/site.js`.
+2. **Mentions légales** — l'adresse et le SIRET sont des marqueurs
+   `[à compléter]`, signalés visuellement en orange sur les deux pages légales.
 
-3. **Textes** — les sections « Méthode » et les libellés de contact
-   (réponse sous 24 h ouvrées, zone d'intervention, langues) sont une copie de
-   départ à relire.
+3. **Adresse e-mail** — `contact@lvno.fr` est utilisée partout, à confirmer.
 
 ## Développement local
 

@@ -42,11 +42,14 @@
   var nav = $('[data-nav]');
 
   if (toggle && nav) {
+    var labelOpen = toggle.getAttribute('data-label-open') || 'Menu';
+    var labelClose = toggle.getAttribute('data-label-close') || labelOpen;
+
     var setMenu = function (open) {
       nav.classList.toggle('is-open', open);
       document.body.classList.toggle('nav-open', open);
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+      toggle.setAttribute('aria-label', open ? labelClose : labelOpen);
     };
 
     toggle.addEventListener('click', function () {
@@ -137,7 +140,9 @@
   var submit = $('[data-submit]', form);
   var label = submit ? $('.btn-label', submit) : null;
   var labelText = label ? label.textContent : '';
-  var EMAIL = 'contact@lvno.fr';
+
+  // Les libellés viennent du balisage : le script reste indépendant de la langue.
+  var msg = function (name) { return form.getAttribute('data-msg-' + name) || ''; };
 
   var say = function (message, kind) {
     if (!status) { return; }
@@ -182,20 +187,19 @@
 
     var invalid = validate();
     if (invalid) {
-      say('Merci de compléter les champs signalés.', 'error');
+      say(msg('invalid'), 'error');
       invalid.focus();
       return;
     }
 
     if (!isConfigured()) {
-      say('Formulaire non configuré : renseignez votre URL Formspree dans l’attribut ' +
-          'action du formulaire. En attendant, écrivez à ' + EMAIL + '.', 'error');
+      say(msg('unset'), 'error');
       return;
     }
 
     if (submit) {
       submit.disabled = true;
-      if (label) { label.textContent = 'Envoi en cours…'; }
+      if (label && msg('sending')) { label.textContent = msg('sending'); }
     }
     say('');
 
@@ -213,10 +217,10 @@
       })
       .then(function () {
         form.classList.add('form-sent');
-        say('Message envoyé. Réponse sous 24 heures ouvrées.', 'ok');
+        say(msg('ok'), 'ok');
       })
       .catch(function (err) {
-        say(err.message || ('L’envoi a échoué. Merci de réessayer ou d’écrire à ' + EMAIL + '.'), 'error');
+        say(err.message || msg('error'), 'error');
         if (submit) {
           submit.disabled = false;
           if (label) { label.textContent = labelText; }
