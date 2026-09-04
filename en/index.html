@@ -26,6 +26,20 @@
 <link rel="stylesheet" href="/assets/css/base.css">
 <link rel="stylesheet" href="/assets/css/style.css">
 
+<script>
+  /* Posé avant le premier rendu : sans cela le hero apparaîtrait une fraction
+     de seconde avant d'être recouvert par l'intro. Volontairement en ligne et
+     bloquant — trois lignes. Si le JavaScript est absent, la classe n'est pas
+     posée et le site s'affiche normalement, sans intro. */
+  (function () {
+    try {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+      if (sessionStorage.getItem('lvno-intro') === '1') { return; }
+      document.documentElement.classList.add('intro-pending');
+    } catch (e) { /* stockage indisponible : pas d'intro, rien de cassé */ }
+  })();
+</script>
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -88,19 +102,22 @@
   <!-- ================================================================ HERO -->
   <section class="hero">
     <div class="container hero-in">
-      <p class="badge reveal"><span class="mark" aria-hidden="true"></span>Supporting executives since 2018</p>
-      <h1 class="display reveal" data-delay="1">
-        Your high-level<br><span class="grad">executive support</span>
+      <p class="badge reveal" style="--k:0"><span class="mark" aria-hidden="true"></span>Supporting executives since 2018</p>
+      <h1 class="display">
+        <span class="wr"><span class="wi" style="--i:0">Your</span></span>
+        <span class="wr"><span class="wi" style="--i:1">high-level</span></span><br>
+        <span class="wr"><span class="wi g g1" style="--i:2">executive</span></span>
+        <span class="wr"><span class="wi g g2" style="--i:3">support</span></span>
       </h1>
-      <p class="lede reveal" data-delay="2">
+      <p class="lede reveal" style="--k:1" data-delay="2">
         Independent executive assistance for senior leaders and executive committees.
         Your time, your travel, your day-to-day — handled without supervision.
       </p>
-      <div class="actions reveal" data-delay="3">
+      <div class="actions reveal" style="--k:2" data-delay="3">
         <a class="btn btn-solid" href="#contact">Get in touch</a>
         <a class="btn btn-glass" href="#services">See the services</a>
       </div>
-      <ul class="chips reveal" data-delay="4">
+      <ul class="chips reveal" style="--k:3" data-delay="4">
         <li>Discretion</li><li>Responsiveness</li><li>Across time zones</li><li>Remote or on-site</li>
       </ul>
     </div>
@@ -196,7 +213,7 @@
           <strong>Giorgi Alkhanashvili</strong> — 8+ years in executive assistance,
           including several years as right hand to a founder-CEO in French tech.
           High-stakes calendars, complex international travel, private aviation,
-          confidential matters: my daily work since 2018.
+          confidential matters.
         </p>
         <p class="reveal" data-delay="3">
           At home in demanding environments — listed tech group, investment fund,
@@ -303,6 +320,7 @@
 </button>
 
 <script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/motion.js" defer></script>
 <script>
 /* Spotlight that follows the cursor across the services grid. */
 (function () {

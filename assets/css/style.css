@@ -248,12 +248,16 @@ main,.hdr,.ftr{ position:relative; z-index:2; }
 
 /* À propos : portrait à gauche, texte à droite */
 .about-grid{
-  display:grid; grid-template-columns:minmax(0,.62fr) minmax(0,1fr);
-  gap:clamp(32px,5vw,72px); align-items:center;
+  display:grid; grid-template-columns:minmax(0,.58fr) minmax(0,1fr);
+  gap:clamp(32px,5vw,72px);
+  /* stretch plutôt que center : le portrait prend la hauteur du texte, donc
+     les deux colonnes s'alignent en haut et en bas à toutes les largeurs. */
+  align-items:stretch;
 }
-.portrait{ margin:0; max-width:420px; }
+.portrait{ margin:0; max-width:390px; }
 .portrait img{
-  width:100%; aspect-ratio:4/5; object-fit:cover; object-position:50% 20%;
+  width:100%; height:100%; min-height:360px;
+  object-fit:cover; object-position:50% 16%;
   border-radius:24px; border:1px solid var(--glass-line);
   box-shadow:0 40px 90px -50px rgba(0,0,0,.9), 0 0 70px -26px rgba(98,177,161,.32);
 }
@@ -377,8 +381,9 @@ main,.hdr,.ftr{ position:relative; z-index:2; }
 /* ---------------------------------------------------------- Responsive */
 @media (max-width:980px){
   .contact-grid{ grid-template-columns:1fr; }
-  .about-grid{ grid-template-columns:1fr; }
+  .about-grid{ grid-template-columns:1fr; align-items:start; }
   .portrait{ max-width:320px; }
+  .portrait img{ height:auto; min-height:0; aspect-ratio:4/5; }
 }
 @media (max-width:760px){ .bento{ grid-template-columns:1fr; } }
 @media (max-width:900px){
@@ -409,4 +414,200 @@ main,.hdr,.ftr{ position:relative; z-index:2; }
   .f2{ grid-template-columns:1fr; gap:0; }
   .grain{ display:none; }
   .ftr-lockup{ flex-direction:column; align-items:flex-start; gap:16px; }
+}
+
+/* ==========================================================================
+   MOUVEMENT — trois couches combinées
+     A · révélation typographique du titre et des titres de section
+     B · animations liées au défilement, natives et sans JavaScript
+     D · signature de marque à l'ouverture, puis transitions entre pages
+
+   Principe de sûreté : la révélation du hero est pilotée par des animations
+   CSS à retard fixe, jamais par une classe posée en JavaScript. Un script
+   qui échoue ne peut donc pas laisser le titre invisible.
+   ========================================================================== */
+
+/* Transitions fondues d'une page à l'autre — FR/EN et pages légales */
+@view-transition{ navigation:auto; }
+
+/* ------------------------------------------- A · révélation typographique */
+
+.display .wr,.h2 .wr{
+  display:inline-block; overflow:hidden;
+  vertical-align:bottom;
+  /* compense le rognage des jambages par overflow:hidden */
+  padding-bottom:.12em; margin-bottom:-.12em;
+}
+
+.display .wi{
+  display:inline-block;
+  animation:word-in 1.05s var(--ease-out) both;
+  animation-delay:calc(var(--i,0) * .095s + var(--start,.14s));
+}
+@keyframes word-in{
+  from{ transform:translateY(118%); opacity:0; filter:blur(10px); }
+  to  { transform:none; opacity:1; filter:none; }
+}
+
+/* Un seul dégradé réparti sur les deux mots, via background-position */
+.display .g{
+  background-image:linear-gradient(96deg,#8FCDBF 0%,#62B1A1 45%,#CFE7E0 100%);
+  background-size:220% 100%;
+  -webkit-background-clip:text; background-clip:text;
+  color:transparent; -webkit-text-fill-color:transparent;
+  animation:word-in 1.05s var(--ease-out) both,
+            sweep 1.3s var(--ease-out) both;
+}
+/* Le balayage reste dans la plage 0-100 % : au-delà, l'image de fond se
+   carrellerait et laisserait une couture visible en travers des lettres. */
+.display .g1{
+  background-position:0% 0;
+  animation-delay:calc(var(--i) * .095s + var(--start,.14s)), calc(var(--start,.14s) + .48s);
+}
+.display .g2{
+  background-position:100% 0;
+  animation-delay:calc(var(--i) * .095s + var(--start,.14s)), calc(var(--start,.14s) + .56s);
+}
+@keyframes sweep{ from{ background-position-x:var(--bp-from); } to{ background-position-x:var(--bp-to); } }
+.display .g1{ --bp-from:100%; --bp-to:0%; }
+.display .g2{ --bp-from:0%;   --bp-to:100%; }
+
+/* Titres de section : découpés par le script, donc invisibles seulement
+   s'ils existent — sans JavaScript le texte s'affiche normalement. */
+.h2 .wi{
+  display:inline-block;
+  transform:translateY(118%); opacity:0;
+  transition:transform .95s var(--ease-out), opacity .7s var(--ease-out);
+  transition-delay:calc(var(--i,0) * .06s);
+}
+.h2.is-lit .wi{ transform:none; opacity:1; }
+
+/* --------------------------------------------------- B · défilement */
+
+@supports (animation-timeline: view()){
+
+  /* Ces éléments passent sous contrôle du défilement : on annule l'état
+     initial des apparitions JS pour que les deux ne se marchent pas dessus. */
+  .tile,.stats li,.stp,.portrait{ opacity:1; transform:none; }
+
+  @keyframes b-rise{
+    from{ opacity:0; transform:translateY(48px) scale(.955); }
+    to  { opacity:1; transform:none; }
+  }
+  @keyframes b-slide{
+    from{ opacity:0; transform:translateX(-28px); }
+    to  { opacity:1; transform:none; }
+  }
+  /* Le sigle de fond remonte moins vite que la page */
+  @keyframes b-para{
+    from{ transform:translateX(-50%) translateY(0) scale(1); opacity:.07; }
+    to  { transform:translateX(-50%) translateY(-26vh) scale(1.12); opacity:0; }
+  }
+  /* Duotone vert vers couleur pleine : adoucit l'arrivée d'une photo très
+     claire sur un fond encre. */
+  @keyframes b-colorize{
+    from{ filter:grayscale(1) brightness(.8) sepia(.6) hue-rotate(112deg) saturate(2.8);
+          transform:scale(1.06); }
+    to  { filter:none; transform:none; }
+  }
+  @keyframes b-bar{ from{ width:0; } to{ width:100%; } }
+
+  .tile    { animation:b-rise linear both;  animation-timeline:view(); animation-range:entry 5% entry 55%; }
+  .stats li{ animation:b-rise linear both;  animation-timeline:view(); animation-range:entry 0% entry 48%; }
+  .stp     { animation:b-slide linear both; animation-timeline:view(); animation-range:entry 5% entry 50%; }
+  .hero-mark{ animation:b-para linear both; animation-timeline:scroll(root); animation-range:0% 65%; }
+  .portrait img{ animation:b-colorize linear both; animation-timeline:view(); animation-range:entry 12% entry 78%; }
+
+  /* La barre de progression n'a plus besoin de JavaScript */
+  .progress::after{ transform:none; animation:b-bar linear both; animation-timeline:scroll(root); }
+}
+
+/* Le duotone agrandit l'image : on recadre au niveau du cadre */
+.portrait{ overflow:hidden; border-radius:24px; }
+
+/* ------------------------------------------------ D · signature de marque */
+
+/* Posée sur <html> par un script en ligne dans le <head>, donc avant le
+   premier rendu : le hero n'a jamais le temps d'apparaître puis d'être
+   recouvert. Sans JavaScript la classe est absente et rien ne se déclenche. */
+html.intro-pending{ overflow:hidden; }
+html.intro-pending .display .wi{ --start:1.34s; }
+
+html.intro-pending .hero-in > *:not(.display){
+  animation:hero-in .85s var(--ease-out) both;
+  animation-delay:calc(1.28s + var(--k,0) * .09s);
+}
+@keyframes hero-in{
+  from{ opacity:0; transform:translateY(26px); }
+  to  { opacity:1; transform:none; }
+}
+
+.intro{
+  position:fixed; inset:0; z-index:300;
+  display:grid; place-items:center;
+  background:var(--ink);
+  transition:opacity .55s var(--ease), visibility .55s;
+}
+.intro::before{
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(52vw 42vw at 50% 46%, rgba(98,177,161,.24), transparent 66%);
+}
+.intro-in{ position:relative; display:grid; justify-items:center; gap:26px; }
+
+.intro-mark{
+  width:min(26vw,148px); color:var(--brand);
+  /* Le masque se dévoile du bas vers le haut, avec un léger redressement */
+  clip-path:inset(100% 0 0 0);
+  filter:drop-shadow(0 0 34px rgba(98,177,161,.45));
+  animation:d-build 820ms var(--ease-out) 100ms both;
+  will-change:transform, clip-path;
+}
+@keyframes d-build{
+  from{ clip-path:inset(100% 0 0 0); transform:scale(.86) rotate(-7deg); opacity:0; }
+  to  { clip-path:inset(0 0 0 0);    transform:none;                    opacity:1; }
+}
+
+.intro-word{
+  font-family:var(--display); font-size:.9rem; font-weight:500;
+  letter-spacing:.42em; text-indent:.42em; color:rgba(255,255,255,.82);
+  animation:d-fade .6s var(--ease-out) 620ms both;
+}
+@keyframes d-fade{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+
+/* Jauge de chargement : c'est elle qui donne l'impression que « ça charge » */
+.intro-bar{
+  width:132px; height:1px; background:rgba(255,255,255,.14); overflow:hidden;
+  animation:d-fade .5s var(--ease-out) 560ms both;
+}
+.intro-bar i{
+  display:block; height:100%; width:0; background:var(--brand);
+  box-shadow:0 0 12px rgba(98,177,161,.9);
+  animation:d-load 900ms cubic-bezier(.5,.05,.2,1) 180ms both;
+}
+@keyframes d-load{ from{ width:0; } to{ width:100%; } }
+
+/* Sortie : le sigle rejoint exactement la place qu'il occupe dans l'en-tête,
+   la cible étant mesurée par le script (variables --tx/--ty/--ts). */
+.intro.is-leaving .intro-in > :not(.intro-mark){ opacity:0; transition:opacity .3s var(--ease); }
+.intro.is-leaving .intro-mark{
+  animation:none;
+  transform:translate(var(--tx,0),var(--ty,0)) scale(var(--ts,.15));
+  filter:drop-shadow(0 0 0 rgba(98,177,161,0));
+  transition:transform .8s cubic-bezier(.66,0,.24,1), filter .8s ease;
+}
+.intro.is-done{ opacity:0; visibility:hidden; }
+
+/* ------------------------------------------ Préférence de mouvement réduit */
+
+@media (prefers-reduced-motion:reduce){
+  .display .wi,.display .g,.h2 .wi{
+    animation:none !important; transform:none !important;
+    opacity:1 !important; filter:none !important;
+  }
+  .display .g{ -webkit-text-fill-color:transparent; }
+  .intro{ display:none !important; }
+  html.intro-pending{ overflow:auto; }
+  html.intro-pending .hero-in > *:not(.display){ animation:none !important; opacity:1; transform:none; }
+  .tile,.stats li,.stp,.portrait img,.hero-mark{ animation:none !important; }
+  .portrait img{ filter:none !important; }
 }
