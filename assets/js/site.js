@@ -207,11 +207,25 @@
     return first;
   };
 
-  var fail = function (data) {
+  var fail = function (data, status) {
     var err = new Error('form submission failed');
     err.fieldErrors = (data && data.errors) || [];
+    err.detail = (data && data.error) || '';
+    err.status = status || 0;
     return err;
   };
+
+  // Retour après un envoi classique — bascule captcha, ou visiteur dont le
+  // JavaScript n'était pas actif au moment de l'envoi. Formspree renvoie ici
+  // avec ?sent=1#contact grâce au champ _next.
+  if (/[?&]sent=1(&|$)/.test(window.location.search)) {
+    form.classList.add('form-sent');
+    say(msg('ok'), 'ok');
+    if (window.history && window.history.replaceState) {
+      // On nettoie l'URL : rechargée telle quelle, elle rejouerait le message.
+      window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+    }
+  }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -242,8 +256,8 @@
       .then(function (res) {
         if (res.ok) { return res.json().catch(function () { return {}; }); }
         return res.json().then(
-          function (data) { throw fail(data); },
-          function () { throw fail(null); }
+          function (data) { throw fail(data, res.status); },
+          function () { throw fail(null, res.status); }
         );
       })
       .then(function () {
@@ -251,6 +265,21 @@
         say(msg('ok'), 'ok');
       })
       .catch(function (err) {
+        // Formspree renvoie 403 quand un captcha est actif sans clé
+        // personnalisée : l'AJAX est alors refusé par principe. Plutôt que de
+        // perdre le message, on repasse en envoi de formulaire classique. Le
+        // visiteur voit la vérification anti-spam de Formspree, puis revient
+        // ici grâce au champ _next. form.submit() ne redéclenche pas cet
+        // écouteur, il n'y a donc pas de boucle.
+        if (err && err.status === 403 && /AJAX/i.test(err.detail || '')) {
+          if (window.console) {
+            console.warn('Formspree : ' + err.detail + ' — bascule en envoi classique.');
+          }
+          say(msg('sending'), '');
+          form.submit();
+          return;
+        }
+
         var list = (err && err.fieldErrors) || [];
 
         // Formspree renvoie ses libellés de validation en anglais quel que soit
