@@ -1,3 +1,7 @@
 .DS_Store
 Thumbs.db
 *.log
+
+# Démos d'animation : comparaison locale uniquement, jamais déployées.
+# À supprimer une fois la direction choisie.
+demo/
